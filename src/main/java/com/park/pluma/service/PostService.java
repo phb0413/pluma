@@ -8,6 +8,10 @@ import com.park.pluma.repository.PostRepository;
 import com.park.pluma.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -81,5 +85,17 @@ public class PostService {
         }
 
         postRepository.delete(post);
+    }
+
+    public Page<PostResponse> getPostsPage(int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return postRepository.findAll(pageRequest)
+                .map(PostResponse::new);
+    }
+
+    @Transactional
+    public Page<PostResponse> searchPosts(String keyword, Pageable pageable) {
+        Page<Post> posts = postRepository.findByTitleContainingIgnoreCaseOrContentContainingIgnoreCase(keyword, keyword, pageable);
+        return posts.map(PostResponse::new);
     }
 }

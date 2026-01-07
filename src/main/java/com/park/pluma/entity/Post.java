@@ -18,7 +18,7 @@ public class Post extends BaseTimeEntity {
     @NotBlank
     private String title;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     @NotBlank
     private String content;
 

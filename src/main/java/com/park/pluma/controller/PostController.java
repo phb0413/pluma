@@ -5,6 +5,10 @@ import com.park.pluma.dto.PostResponse;
 import com.park.pluma.service.PostService;
 import com.park.pluma.service.UserDetailsImpl;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -42,5 +46,19 @@ public class PostController {
     public ResponseEntity<?> deletePost(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
         postService.deletePost(id, userDetails.getUser());
         return ResponseEntity.ok("게시글이 삭제되었습니다.");
+    }
+
+    @GetMapping("/paged")
+    public ResponseEntity<Page<PostResponse>> getPostsPaged(
+            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+        return ResponseEntity.ok(postService.getPostsPage(page, size));
+    }
+
+    @GetMapping("/search")
+    public Page<PostResponse> searchPosts(
+            @RequestParam String keyword, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        return postService.searchPosts(keyword, pageable);
     }
 }
