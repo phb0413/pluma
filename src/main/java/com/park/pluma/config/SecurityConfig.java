@@ -18,8 +18,11 @@ public class SecurityConfig {
         http.csrf(csrf -> csrf.disable());
 
         http.authorizeHttpRequests(auth -> {
+            // 로그인 회원가입 인증없이 허용
             auth.requestMatchers("/api/auth/**").permitAll();
+            // 게시글 조회는 공개
             auth.requestMatchers(HttpMethod.GET, "/api/posts/**").permitAll();
+            // 게시글 작성, 삭제, 수정 등 나머지는 모두 JWT 인증 필요
             auth.anyRequest().authenticated();
         });
 

@@ -20,4 +20,6 @@ public abstract class BaseTimeEntity {
 
     @LastModifiedDate
     protected LocalDateTime updatedAt;
+
+    // 모든 엔터티에 createdAt, updatedAt 중복 제거 //
 }
