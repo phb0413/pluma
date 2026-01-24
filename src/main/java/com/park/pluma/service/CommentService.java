@@ -9,10 +9,10 @@ import com.park.pluma.repository.CommentRepository;
 import com.park.pluma.repository.PostRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -36,14 +36,40 @@ public class CommentService {
     }
 
     // 댓글 조회
-    public List<CommentResponse> getComments(Long postId) {
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
+//    public Page<CommentResponse> getComments(
+//            Long postId, int page, int size
+//    ) {
+//        postRepository.findById(postId)
+//                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않는다"));
+//
+//        Pageable pageable = PageRequest.of(
+//                page,
+//                size,
+//                Sort.by(Sort.Direction.ASC, "createdAt")
+//        );
+//
+//        Page<Comment> comments = commentRepository.findByPostId(postId, pageable);
+//        return comments.map(CommentResponse::new);
+//    }
 
-        return commentRepository.findByPostOrderByCreatedAtAsc(post)
-                .stream()
-                .map(CommentResponse::new)
-                .collect(Collectors.toList());
+    // 댓글 조회
+    public Slice<CommentResponse> getCommentsScroll(
+            Long postId,
+            Long lastCommentId,
+            int size
+    ) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않는다."));
+        Pageable pageable = PageRequest.of(0, size);
+
+        Slice<Comment> comments;
+
+        if(lastCommentId == null) {
+            comments = commentRepository.findByPostOrderByIdDesc(post, pageable);
+        } else {
+            comments = commentRepository.findByPostAndIdLessThanOrderByIdDesc(post, lastCommentId, pageable);
+        }
+        return comments.map(CommentResponse::new);
     }
 
     // 댓글 수정

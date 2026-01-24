@@ -28,10 +28,25 @@ public class CommentController {
     }
 
     // 댓글 조회
-    @GetMapping
-    public ResponseEntity<?> getComments(@PathVariable Long postId) {
-        return ResponseEntity.ok(commentService.getComments(postId));
+//    @GetMapping
+//    public ResponseEntity<Page<CommentResponse>> getComments(
+//            @PathVariable Long postId,
+//            @RequestParam(defaultValue = "0") int page,
+//            @RequestParam(defaultValue = "5") int size
+//    ) {
+//        return ResponseEntity.ok(commentService.getComments(postId, page, size));
+//    }
+
+    // 댓글 조회
+    @GetMapping("/scroll")
+    public ResponseEntity<?> getCommentsScroll(
+            @PathVariable Long postId,
+            @RequestParam(required = false) Long lastCommentId,
+            @RequestParam(defaultValue = "5") int size
+    ) {
+        return ResponseEntity.ok(commentService.getCommentsScroll(postId, lastCommentId, size));
     }
+
 
     // 댓글 수정
     @PutMapping

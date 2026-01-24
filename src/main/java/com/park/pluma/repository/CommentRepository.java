@@ -2,10 +2,18 @@ package com.park.pluma.repository;
 
 import com.park.pluma.entity.Comment;
 import com.park.pluma.entity.Post;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.List;
-
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    List<Comment> findByPostOrderByCreatedAtAsc(Post post);
+
+    Page<Comment> findByPostId(Long postId, Pageable pageable);
+
+    // 첫 요청 (cursor 없음)
+    Slice<Comment> findByPostOrderByIdDesc(Post post, Pageable pageable);
+
+    // 다음 요청 (cursor 있음)
+    Slice<Comment> findByPostAndIdLessThanOrderByIdDesc(Post post, Long lastCommentId, Pageable pageable);
 }
