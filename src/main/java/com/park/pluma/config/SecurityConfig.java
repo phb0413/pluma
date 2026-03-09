@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -20,10 +21,18 @@ import java.util.List;
 public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtFilter jwtFilter) throws Exception {
-        http.csrf(csrf -> csrf.disable())
-                .cors(cors -> {});
+        http.csrf(csrf -> csrf.disable());
+
+        http.cors(cors -> {});
+
+        // jwt 사용 -> session 사용안함
+        http.sessionManagement(session ->
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
         http.authorizeHttpRequests(auth -> {
+
+            // Cors preflight
+            auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
             // 로그인 회원가입 인증없이 허용
             auth.requestMatchers("/api/auth/**").permitAll();
             // 게시글 조회는 공개

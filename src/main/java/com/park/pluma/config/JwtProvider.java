@@ -10,24 +10,37 @@ import java.security.Key;
 import java.util.Date;
 
 @Component
-public class JwtUtil {
+public class JwtProvider {
     @Value("${jwt.secret}")
     private String secretKey;
 
     private Key key;
 
-    private final long TOKEN_VALIDITY = 1000L * 60 * 60 * 24;
+    private final long ACCESS_TOKEN_EXPIRE = 1000L * 60 * 15; // 15minute
+    private final long REFRESH_TOKEN_EXPIRE = 1000L * 60 * 60 * 24 * 7; // 7 days
 
     @PostConstruct
     public void init() {
         this.key = Keys.hmacShaKeyFor(secretKey.getBytes());
     }
 
-    // token 생성
+    // AccessToken 생성
 
-    public String createToken(String username) {
+    public String createAccessToken(String username) {
         Date now = new Date();
-        Date expiryDate = new Date(now.getTime() + TOKEN_VALIDITY);
+        Date expiryDate = new Date(now.getTime() + ACCESS_TOKEN_EXPIRE);
+
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(key, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    public String createRefreshToken(String username) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + REFRESH_TOKEN_EXPIRE);
 
         return Jwts.builder()
                 .setSubject(username)
@@ -38,7 +51,7 @@ public class JwtUtil {
     }
 
     // token에서 사용자명 추출
-    public String getUsernameFromToken(String token) {
+    public String getUsername(String token) {
         return parseClaims(token).getBody().getSubject();
     }
 

@@ -6,16 +6,23 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public User signup(String username, String email, String rawPassword) {
-        String encodedPassword = passwordEncoder.encode(rawPassword);
+    public User signup(String username, String email, String password) {
+
+        if(userRepository.existsByUsername(username)) {
+            throw new RuntimeException("이미 존재하는 username");
+        }
+
+        if(userRepository.existsByEmail(email)) {
+            throw new RuntimeException("이미 존재하는 email");
+        }
+
+        String encodedPassword = passwordEncoder.encode(password);
 
         User user = User.builder()
                 .username(username)
@@ -24,17 +31,5 @@ public class UserService {
                 .build();
 
         return userRepository.save(user);
-    }
-
-    public boolean isUsernameExist(String username) {
-        return userRepository.existsByUsername(username);
-    }
-
-    public boolean isEmailExist(String email) {
-        return userRepository.existsByEmail(email);
-    }
-
-    public Optional<User> findByUsername(String username) {
-        return userRepository.findByUsername(username);
     }
 }

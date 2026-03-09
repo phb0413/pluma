@@ -18,7 +18,7 @@ import java.io.IOException;
 @Component
 @RequiredArgsConstructor
 public class JwtFilter extends OncePerRequestFilter {
-    private final JwtUtil jwtUtil;
+    private final JwtProvider jwtProvider;
     private final UserDetailsService userDetailsService; // 자동으로 UserDetailsServiceImpl 주입됨
 
 
@@ -33,8 +33,8 @@ public class JwtFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7); // bearer 이후로 추출
 
             // token 검증
-            if(jwtUtil.validateToken(token)) {
-                String username = jwtUtil.getUsernameFromToken(token);
+            if(jwtProvider.validateToken(token)) {
+                String username = jwtProvider.getUsername(token);
 
                 // UserDetails 불러오기 (여기서 권한 포함)
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
