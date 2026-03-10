@@ -6,10 +6,9 @@ import com.park.pluma.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,6 +26,27 @@ public class UserController {
                 signUpRequest.getPassword()
         );
 
-        return ResponseEntity.ok("회원가입 성공!" + user.getUsername());
+        return ResponseEntity.ok(Map.of(
+                "message", "회원가입 성공!",
+                "username", user.getUsername()
+        ));
+    }
+
+    // 아이디 중복검사
+    @GetMapping("/check-username")
+    public ResponseEntity<?> checkUsername(@RequestParam String username) {
+
+        boolean exists = userService.existsByUsername(username);
+
+        return ResponseEntity.ok(exists);
+    }
+
+    // 이메일 중복검사
+    @GetMapping("check-email")
+    public ResponseEntity<?> checkEmail(@RequestParam String email) {
+
+        boolean exists = userService.existsByEmail(email);
+
+        return ResponseEntity.ok(exists);
     }
 }

@@ -32,4 +32,14 @@ public class UserService {
 
         return userRepository.save(user);
     }
+
+    // 아이디 중복검사
+    public boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    // 이메일 중복검사
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
 }
