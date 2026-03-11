@@ -10,13 +10,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/posts/{postId}/comments")
 public class CommentController {
 
     private final CommentService commentService;
 
     // 댓글 작성
-    @PostMapping
+    @PostMapping("/api/posts/{postId}/comments")
     public ResponseEntity<?> createComment(
             @PathVariable Long postId,
             @RequestBody CommentRequest request,
@@ -28,7 +27,7 @@ public class CommentController {
     }
 
     // 댓글 조회
-    @GetMapping("/scroll")
+    @GetMapping("/api/posts/{postId}/comments/scroll")
     public ResponseEntity<?> getCommentsScroll(
             @PathVariable Long postId,
             @RequestParam(required = false) Long lastCommentId,
@@ -39,21 +38,21 @@ public class CommentController {
 
 
     // 댓글 수정
-    @PutMapping
+    @PutMapping("/api/comments/{commentId}")
     public ResponseEntity<?> updateComment(
-            @PathVariable Long postId,
+            @PathVariable Long commentId,
             @RequestBody CommentRequest request,
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        return ResponseEntity.ok(commentService.updateComment(postId, request, userDetails.getUser()));
+        return ResponseEntity.ok(commentService.updateComment(commentId, request, userDetails.getUser()));
     }
 
     // 댓글 삭제
-    @DeleteMapping
+    @DeleteMapping("/api/comments/{commentId}")
     public ResponseEntity<?> deleteComment(
-            @PathVariable Long postId,
+            @PathVariable Long commentId,
             @AuthenticationPrincipal UserDetailsImpl userDetails) {
-        commentService.deleteComment(postId, userDetails.getUser());
-        return ResponseEntity.ok("댓글이 삭제되었습니다.");
+        commentService.deleteComment(commentId, userDetails.getUser());
+        return ResponseEntity.noContent().build();
     }
 }
