@@ -32,8 +32,8 @@ public class PostController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPostById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(postService.getPostById(id));
+    public ResponseEntity<?> getPostById(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+        return ResponseEntity.ok(postService.getPostById(id, userDetails.getUser()));
     }
 
     @PutMapping("/{id}")

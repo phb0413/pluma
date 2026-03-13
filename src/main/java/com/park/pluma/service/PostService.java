@@ -4,6 +4,7 @@ import com.park.pluma.dto.PostRequest;
 import com.park.pluma.dto.PostResponse;
 import com.park.pluma.entity.Post;
 import com.park.pluma.entity.User;
+import com.park.pluma.repository.PostLikeRepository;
 import com.park.pluma.repository.PostRepository;
 import com.park.pluma.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -24,6 +25,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final PostLikeRepository postLikeRepository;
 
     public PostResponse createPost(PostRequest postRequest, String username) {
         User user = userRepository.findByUsername(username)
@@ -54,10 +56,18 @@ public class PostService {
                 .collect(Collectors.toList());
     }
 
-    public PostResponse getPostById(Long id) {
+    public PostResponse getPostById(Long id, User user) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다."));
-        return new PostResponse(post);
+
+        long likeCount = postLikeRepository.countByPost(post);
+
+        boolean liked = false;
+
+        if(user != null) {
+           liked = postLikeRepository.findByPostAndUser(post,user).isPresent();
+        }
+        return new PostResponse(post, likeCount, liked);
     }
 
     @Transactional
